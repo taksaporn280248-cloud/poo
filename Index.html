@@ -19,317 +19,351 @@
 </head>
 <body class="h-full flex flex-col text-slate-800 antialiased overflow-x-hidden bg-slate-50">
 
-  <header class="bg-slate-900 text-white shadow-sm sticky top-0 z-50 border-b border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
-          <div class="p-2 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-xl text-slate-950 font-bold text-lg flex items-center justify-center shadow-sm">📜</div>
-          <div>
-            <h1 class="text-base font-bold tracking-tight text-white sm:text-lg">ระบบคีย์ทะเบียนสัญญา</h1>
-            <p class="text-[10px] text-amber-400 font-medium tracking-wide">แยกไฟล์รายปีและแยกแท็บประเภทสัญญาใน Google Drive</p>
-          </div>
-        </div>
-        
-        <nav class="flex space-x-1 sm:space-x-2 items-center">
-          <button id="nav-dashboard" onclick="switchTab('dashboard')" class="px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-150 bg-slate-800 text-amber-400 shadow-sm border-b border-amber-400">หน้าหลัก</button>
-          <button id="nav-form" onclick="switchTab('form')" class="px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-150 text-slate-400 hover:bg-slate-800 hover:text-white">เพิ่มสัญญา</button>
-          <button id="nav-check" onclick="switchTab('check')" class="px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-150 text-slate-400 hover:bg-slate-800 hover:text-white">ตรวจสอบสัญญา</button>
-          <a id="header-drive-link" href="#" target="_blank" class="hidden md:inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-semibold text-emerald-400 bg-emerald-950/40 border border-emerald-800/60 hover:bg-emerald-900/40 transition-all duration-150 ml-2">📁 Google Drive</a>
-        </nav>
-      </div>
-    </div>
-  </header>
-
-  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div id="toast-container" class="fixed top-20 right-4 z-50 pointer-events-none max-w-sm w-full"></div>
-
-    <section id="view-dashboard" class="space-y-6">
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
-        <div class="lg:col-span-2">
-          <h3 class="text-sm font-bold text-slate-900 flex items-center"><span class="text-xl mr-2">☁️</span> ระบบจัดเก็บข้อมูลทะเบียนสัญญาพัสดุ (Google Drive Storage)</h3>
-          <p class="text-xs text-slate-500 mt-1">สถานะฐานข้อมูลหลัก: <span id="db-status-badge" class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[10px]">ระบบกำลังโหลด...</span></p>
-        </div>
-        <div class="flex flex-wrap gap-2 lg:justify-end">
-          <button onclick="checkCloudConnection()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all duration-150 border border-slate-200 inline-flex items-center shadow-sm">🔄 ทดสอบการเชื่อมต่อคลาวด์</button>
-          <a id="dash-drive-btn" href="#" target="_blank" class="px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl transition-all duration-150 border border-emerald-200 inline-flex items-center shadow-sm">📁 เปิดโฟลเดอร์ Google Drive</a>
-        </div>
+  <div id="login-overlay" class="fixed inset-0 bg-slate-900 z-[9999] flex items-center justify-center px-4">
+    <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl border border-slate-200">
+      <div class="text-center space-y-3 mb-6">
+        <div class="inline-flex p-3 bg-amber-50 rounded-2xl text-slate-950 font-bold text-3xl shadow-inner">📜</div>
+        <h2 class="text-xl font-bold text-slate-900">เข้าสู่ระบบทะเบียนสัญญา</h2>
+        <p class="text-xs text-slate-400 font-medium">กรุณาระบุปีงบประมาณและข้อมูลสิทธิ์การเข้าใช้งานหน่วยงาน</p>
       </div>
 
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h2 class="text-xl font-bold text-slate-900">แผงควบคุมหลัก (Dashboard)</h2>
-            <p class="text-xs text-slate-500 mt-1">สรุปจำนวนข้อมูลสัญญาแต่ละประเภทแยกรายปีงบประมาณ (แยกจัดเก็บ 1 ปีงบประมาณ = 1 ไฟล์ Google Sheets)</p>
-          </div>
-          <div class="flex items-center space-x-3">
-            <label for="db-year-select" class="text-sm font-semibold text-slate-600 whitespace-nowrap">เลือกปีงบประมาณ :</label>
-            <select id="db-year-select" onchange="loadDashboardStats()" class="bg-white border border-slate-300 hover:border-amber-400 text-slate-800 text-sm rounded-xl focus:ring-amber-400 focus:border-amber-400 block p-2.5 font-semibold transition-colors duration-150 cursor-pointer shadow-sm"></select>
-          </div>
-        </div>
-      </div>
-
-      <div id="dashboard-loader" class="hidden flex items-center justify-center p-12">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-400"></div>
-        <span class="ml-3 font-medium text-slate-500 text-sm">กำลังดาวน์โหลดข้อมูลสถิติจากคลาวด์...</span>
-      </div>
-
-      <div id="dashboard-content" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-        <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-sm border-b-4 border-amber-400 flex flex-col justify-between min-h-[140px]">
-          <div><p class="text-[10px] uppercase tracking-wider font-semibold text-amber-400">สัญญาทั้งหมดทุกประเภท</p><h3 id="stat-total" class="text-3xl font-bold mt-4">0</h3></div>
-          <div class="text-right text-[10px] opacity-80 font-medium">รายการรวมทั้งหมดในปีนี้</div>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 border-l-4 border-amber-400 flex flex-col justify-between min-h-[140px]">
-          <div><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">จต.</span><h3 id="stat-jt" class="text-3xl font-bold text-slate-800 mt-4">0</h3></div>
-          <div class="text-right text-[10px] text-slate-400 font-medium">แท็บ จต. ในไฟล์ปีนี้</div>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 border-l-4 border-orange-400 flex flex-col justify-between min-h-[140px]">
-          <div><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-800 border border-orange-200">ภน.</span><h3 id="stat-pn" class="text-3xl font-bold text-slate-800 mt-4">0</h3></div>
-          <div class="text-right text-[10px] text-slate-400 font-medium">แท็บ ภน. ในไฟล์ปีนี้</div>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 border-l-4 border-yellow-500 flex flex-col justify-between min-h-[140px]">
-          <div><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-50 text-yellow-800 border border-yellow-200">ซข.</span><h3 id="stat-sk" class="text-3xl font-bold text-slate-800 mt-4">0</h3></div>
-          <div class="text-right text-[10px] text-slate-400 font-medium">แท็บ ซข. ในไฟล์ปีนี้</div>
-        </div>
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 border-l-4 border-slate-600 flex flex-col justify-between min-h-[140px]">
-          <div><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">สช.</span><h3 id="stat-sc" class="text-3xl font-bold text-slate-800 mt-4">0</h3></div>
-          <div class="text-right text-[10px] text-slate-400 font-medium">แท็บ สช. ในไฟล์ปีนี้</div>
-        </div>
-      </div>
-    </section>
-
-    <section id="view-form" class="hidden space-y-6 max-w-4xl mx-auto">
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
         <div>
-          <h2 id="form-title" class="text-xl font-bold text-slate-900">เพิ่มรายละเอียดข้อมูลทะเบียนสัญญา</h2>
-          <p id="form-subtitle" class="text-xs text-slate-400 mt-1">กรุณากรอกข้อมูลเพื่อบันทึกลงฐานข้อมูลพัสดุ</p>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">ปีงบประมาณที่ต้องการเปิด :</label>
+          <select id="login-year-select" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm font-semibold rounded-xl p-3 focus:ring-2 focus:ring-amber-400 focus:outline-none transition-all cursor-pointer"></select>
         </div>
-        <button id="btn-cancel-edit" onclick="resetFormToSaveMode()" class="hidden px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-200">❌ ยกเลิกการแก้ไข / เพิ่มสัญญาใหม่</button>
-      </div>
-
-      <form id="contract-form" onsubmit="submitForm(event)" class="space-y-6">
-        <input type="hidden" id="field-col1" value=""> 
-        <input type="hidden" id="edit-row-idx" value="">
-        <input type="hidden" id="edit-original-type" value="">
-        <input type="hidden" id="edit-original-year" value="">
-
-        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 relative overflow-hidden">
-          <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ปีงบประมาณ <span class="text-amber-500">*</span></label>
-              <select id="field-year" onchange="validateUniqueContractNo()" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 text-sm font-semibold rounded-xl p-3 focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none transition-all cursor-pointer" required></select>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ประเภททะเบียนสัญญา <span class="text-amber-500">*</span></label>
-              <select id="field-type" onchange="validateUniqueContractNo()" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 text-sm font-semibold rounded-xl p-3 focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none transition-all cursor-pointer" required>
-                <option value="จต.">จต.</option>
-                <option value="ภน.">ภน.</option>
-                <option value="ซข.">ซข.</option>
-                <option value="สช.">สช.</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">เลขที่สัญญา <span class="text-amber-500">*</span></label>
-              <div class="relative">
-                <input type="text" id="field-col3" onblur="validateUniqueContractNo()" placeholder="เช่น จต.001/2569" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 pr-10 text-sm font-bold focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none transition-all" required>
-                <span id="col3-status-icon" class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm"></span>
-              </div>
-              <p id="col3-warn" class="hidden text-[10px] text-rose-500 mt-1 font-semibold"></p>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ลงวันที่ <span class="text-amber-500">*</span></label>
-              <input type="date" id="field-col2" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none" required>
-            </div>
-          </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">ชื่อผู้ใช้งาน (Username) :</label>
+          <input type="text" id="login-username" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-400 focus:outline-none transition-all" required placeholder="ระบุชื่อผู้ใช้...">
         </div>
-
-        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 relative overflow-hidden">
-          <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div class="md:col-span-2">
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ชื่อสัญญา <span class="text-amber-500">*</span></label>
-              <input type="text" id="field-col4" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none" required>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">จำนวนเงิน (บาท) <span class="text-amber-500">*</span></label>
-              <input type="number" step="0.01" id="field-col5" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm font-bold focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none" required>
-            </div>
-            <div class="md:col-span-2">
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">คู่สัญญา <span class="text-amber-500">*</span></label>
-              <input type="text" id="field-col6" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none" required>
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">รหัสงบประมาณ</label>
-              <input type="text" id="field-col7" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none">
-            </div>
-          </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">รหัสผ่าน (Password) :</label>
+          <input type="password" id="login-password" class="w-full bg-slate-50 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:ring-2 focus:ring-amber-400 focus:outline-none transition-all" required placeholder="ระบุรหัสผ่าน...">
         </div>
-
-        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 relative overflow-hidden">
-          <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">จำนวนงวด</label>
-              <input type="number" id="field-col8" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">วันเริ่มต้นสัญญา</label>
-              <input type="date" id="field-col9" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">วันสิ้นสุดสัญญา</label>
-              <input type="date" id="field-col10" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">จำนวนงบประมาณ</label>
-              <input type="number" step="0.01" id="field-col13" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ราคากลาง</label>
-              <input type="number" step="0.01" id="field-col14" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">วิธีจัดหา</label>
-              <select id="field-col11" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 text-sm rounded-xl p-3 focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none cursor-pointer">
-                <option value=""></option>
-                <option value="วิธีเฉพาะเจาะจง">วิธีเฉพาะเจาะจง</option>
-                <option value="วิธีคัดเลือก">วิธีคัดเลือก</option>
-                <option value="วิธีประกวดราคาอิเล็กทรอนิกส์ (e-bidding)">วิธีประกวดราคาอิเล็กทรอนิกส์ (e-bidding)</option>
-                <option value="วิธีตกลงราคา">วิธีตกลงราคา</option>
-                <option value="วิธีสอบราคา">วิธีสอบราคา</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 relative overflow-hidden">
-          <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ใบขอจัดหา /บันทึก</label>
-              <input type="text" id="field-col12" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">รายงานขอซื้อขอจ้าง</label>
-              <input type="text" id="field-col15" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ประกาศร่าง TOR</label>
-              <input type="text" id="field-col16" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">รายงานปรับปรุงร่าง TOR</label>
-              <input type="text" id="field-col17" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">เลขที่ประกาศ/หนังสือเชิญ</label>
-              <input type="text" id="field-col18" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">จำนวนผู้เสนอราคา</label>
-              <input type="number" id="field-col19" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">วันที่ประกาศผล/ยกเลิก</label>
-              <input type="text" id="field-col20" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
-            </div>
-            <div class="sm:col-span-2">
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">คำสั่ง คกก.ตรวจรับ</label>
-              <input type="text" id="field-col21" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 relative overflow-hidden">
-          <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">หลักประกัน</label>
-              <input type="text" id="field-col22" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">การจัดเก็บเอกสาร</label>
-              <input type="text" id="field-col23" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
-            </div>
-            <div>
-              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">รับประกันความชำรุด</label>
-              <input type="text" id="field-col24" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-md border border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <p class="text-xs text-slate-400 font-medium">หมายเหตุ: ฟิลด์ข้อมูลที่มีเครื่องหมายดอกจัน <span class="text-amber-400 font-bold">*</span> จำเป็นต้องกรอกข้อมูลให้ครบถ้วน</p>
-          <div class="flex items-center space-x-3 self-end md:self-auto">
-            <button type="button" onclick="clearForm()" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold rounded-xl border border-slate-700">🧹 ล้างแบบฟอร์ม</button>
-            <button type="submit" id="btn-submit-form" class="px-8 py-3 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 text-xs font-bold rounded-xl hover:brightness-105 active:scale-98 transition-all flex items-center shadow-lg shadow-amber-500/10">
-              <span id="submit-text">💾 บันทึกข้อมูลสัญญา</span>
-              <div id="submit-spinner" class="hidden animate-spin rounded-full h-4 w-4 border-b-2 border-slate-950 ml-2"></div>
-            </button>
-          </div>
-        </div>
-      </form>
-    </section>
-
-    <section id="view-check" class="hidden space-y-6">
-      <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-        <h2 class="text-xl font-bold text-slate-900 mb-1">ตรวจสอบและค้นหาข้อมูลทะเบียนสัญญา</h2>
-        <p class="text-xs text-slate-500 mb-6">กรองข้อมูลด้วยปีงบประมาณ และค้นหาจากเลขที่สัญญา ชื่อสัญญา หรือคู่สัญญา</p>
         
-        <form onsubmit="handleSearch(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <p id="login-error-msg" class="hidden text-xs text-rose-500 font-semibold text-center"></p>
+
+        <button type="submit" id="btn-login" class="w-full py-3.5 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 text-xs font-bold rounded-xl hover:brightness-105 active:scale-98 transition-all flex items-center justify-center shadow-lg shadow-amber-500/10 mt-2">
+          <span id="login-btn-text">🔒 ตรวจสอบสิทธิ์เข้าใช้งาน</span>
+          <div id="login-spinner" class="hidden animate-spin rounded-full h-4 w-4 border-b-2 border-slate-950 ml-2"></div>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div id="main-app-content" class="hidden h-full flex flex-col flex-grow">
+    <header class="bg-slate-900 text-white shadow-sm sticky top-0 z-50 border-b border-slate-800">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
+            <div class="p-2 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-xl text-slate-950 font-bold text-lg flex items-center justify-center shadow-sm">📜</div>
+            <div>
+              <h1 class="text-base font-bold tracking-tight text-white sm:text-lg">ระบบคีย์ทะเบียนสัญญา</h1>
+              <p class="text-[10px] text-amber-400 font-medium tracking-wide">แยกไฟล์รายปีและแยกแท็บประเภทสัญญาใน Google Drive</p>
+            </div>
+          </div>
+          
+          <nav class="flex space-x-1 sm:space-x-2 items-center">
+            <button id="nav-dashboard" onclick="switchTab('dashboard')", class="px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-150 bg-slate-800 text-amber-400 shadow-sm border-b border-amber-400">หน้าหลัก</button>
+            <button id="nav-form" onclick="switchTab('form')", class="px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-150 text-slate-400 hover:bg-slate-800 hover:text-white">เพิ่มสัญญา</button>
+            <button id="nav-check" onclick="switchTab('check')", class="px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-150 text-slate-400 hover:bg-slate-800 hover:text-white">ตรวจสอบสัญญา</button>
+            <button onclick="handleLogout()", class="px-3.5 py-2 rounded-xl text-sm font-medium text-rose-400 hover:bg-rose-950/40 transition-all duration-150">🔓 ออกระบบ</button>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div id="toast-container" class="fixed top-20 right-4 z-50 pointer-events-none max-w-sm w-full"></div>
+
+      <section id="view-dashboard" class="space-y-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+          <div class="lg:col-span-2">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center"><span class="text-xl mr-2">☁️</span> ระบบจัดเก็บข้อมูลทะเบียนสัญญาพัสดุ (Google Drive Storage)</h3>
+            <p class="text-xs text-slate-500 mt-1">สถานะฐานข้อมูลหลัก: <span id="db-status-badge" class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[10px]">ระบบกำลังโหลด...</span></p>
+          </div>
+          <div class="flex flex-wrap gap-2 lg:justify-end">
+            <button onclick="checkCloudConnection()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all duration-150 border border-slate-200 inline-flex items-center shadow-sm">🔄 ทดสอบการเชื่อมต่อคลาวด์</button>
+            <a id="dash-drive-btn" href="#" target="_blank" class="px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl transition-all duration-150 border border-emerald-200 inline-flex items-center shadow-sm">📁 เปิดโฟลเดอร์ Google Drive</a>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h2 class="text-xl font-bold text-slate-900">แผงควบคุมหลัก (Dashboard)</h2>
+              <p class="text-xs text-slate-500 mt-1">สรุปจำนวนข้อมูลสัญญาแต่ละประเภทแยกรายปีงบประมาณ (แยกจัดเก็บ 1 ปีงบประมาณ = 1 ไฟล์ Google Sheets)</p>
+            </div>
+            <div class="flex items-center space-x-3">
+              <label for="db-year-select" class="text-sm font-semibold text-slate-600 whitespace-nowrap">เลือกปีงบประมาณ :</label>
+              <select id="db-year-select" onchange="loadDashboardStats()" class="bg-white border border-slate-300 hover:border-amber-400 text-slate-800 text-sm rounded-xl focus:ring-amber-400 focus:border-amber-400 block p-2.5 font-semibold transition-colors duration-150 cursor-pointer shadow-sm"></select>
+            </div>
+          </div>
+        </div>
+
+        <div id="dashboard-loader" class="hidden flex items-center justify-center p-12">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-400"></div>
+          <span class="ml-3 font-medium text-slate-500 text-sm">กำลังดาวน์โหลดข้อมูลสถิติจากคลาวด์...</span>
+        </div>
+
+        <div id="dashboard-content" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+          <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 shadow-sm border-b-4 border-amber-400 flex flex-col justify-between min-h-[140px]">
+            <div><p class="text-[10px] uppercase tracking-wider font-semibold text-amber-400">สัญญาทั้งหมดทุกประเภท</p><h3 id="stat-total" class="text-3xl font-bold mt-4">0</h3></div>
+            <div class="text-right text-[10px] opacity-80 font-medium">รายการรวมทั้งหมดในปีนี้</div>
+          </div>
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 border-l-4 border-amber-400 flex flex-col justify-between min-h-[140px]">
+            <div><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200">จต.</span><h3 id="stat-jt" class="text-3xl font-bold text-slate-800 mt-4">0</h3></div>
+            <div class="text-right text-[10px] text-slate-400 font-medium">แท็บ จต. ในไฟล์ปีนี้</div>
+          </div>
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 border-l-4 border-orange-400 flex flex-col justify-between min-h-[140px]">
+            <div><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-orange-50 text-orange-800 border border-orange-200">ภน.</span><h3 id="stat-pn" class="text-3xl font-bold text-slate-800 mt-4">0</h3></div>
+            <div class="text-right text-[10px] text-slate-400 font-medium">แท็บ ภน. ในไฟล์ปีนี้</div>
+          </div>
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 border-l-4 border-yellow-500 flex flex-col justify-between min-h-[140px]">
+            <div><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-50 text-yellow-800 border border-yellow-200">ซข.</span><h3 id="stat-sk" class="text-3xl font-bold text-slate-800 mt-4">0</h3></div>
+            <div class="text-right text-[10px] text-slate-400 font-medium">แท็บ ซข. ในไฟล์ปีนี้</div>
+          </div>
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 border-l-4 border-slate-600 flex flex-col justify-between min-h-[140px]">
+            <div><span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-800 border border-slate-200">สช.</span><h3 id="stat-sc" class="text-3xl font-bold text-slate-800 mt-4">0</h3></div>
+            <div class="text-right text-[10px] text-slate-400 font-medium">แท็บ สช. ในไฟล์ปีนี้</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-form" class="hidden space-y-6 max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ระบุปีงบประมาณ :</label>
-            <select id="search-year" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-amber-400 p-3 font-semibold cursor-pointer"></select>
+            <h2 id="form-title" class="text-xl font-bold text-slate-900">เพิ่มรายละเอียดข้อมูลทะเบียนสัญญา</h2>
+            <p id="form-subtitle" class="text-xs text-slate-400 mt-1">กรุณากรอกข้อมูลเพื่อบันทึกลงฐานข้อมูลพัสดุ</p>
           </div>
-          <div class="md:col-span-2">
-            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">คำค้นหาหลัก (Keyword) :</label>
-            <input type="text" id="search-keyword" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-amber-400 p-3 focus:outline-none" placeholder="พิมพ์ชื่อคู่สัญญา, เลขที่สัญญา หรือชื่อสัญญา...">
+          <button id="btn-cancel-edit" onclick="resetFormToSaveMode()" class="hidden px-4 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold rounded-xl border border-rose-200">❌ ยกเลิกการแก้ไข / เพิ่มสัญญาใหม่</button>
+        </div>
+
+        <form id="contract-form" onsubmit="submitForm(event)" class="space-y-6">
+          <input type="hidden" id="field-col1" value=""> 
+          <input type="hidden" id="edit-row-idx" value="">
+          <input type="hidden" id="edit-original-type" value="">
+          <input type="hidden" id="edit-original-year" value="">
+
+          <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 relative overflow-hidden">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ปีงบประมาณ <span class="text-amber-500">*</span></label>
+                <select id="field-year" onchange="validateUniqueContractNo()" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 text-sm font-semibold rounded-xl p-3 focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none transition-all cursor-pointer" required></select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ประเภททะเบียนสัญญา <span class="text-amber-500">*</span></label>
+                <select id="field-type" onchange="validateUniqueContractNo()" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 text-sm font-semibold rounded-xl p-3 focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none transition-all cursor-pointer" required>
+                  <option value="จต.">จต.</option>
+                  <option value="ภน.">ภน.</option>
+                  <option value="ซข.">ซข.</option>
+                  <option value="สช.">สช.</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">เลขที่สัญญา <span class="text-amber-500">*</span></label>
+                <div class="relative">
+                  <input type="text" id="field-col3" onblur="validateUniqueContractNo()" placeholder="เช่น จต.001/2569" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 pr-10 text-sm font-bold focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none transition-all" required>
+                  <span id="col3-status-icon" class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm"></span>
+                </div>
+                <p id="col3-warn" class="hidden text-[10px] text-rose-500 mt-1 font-semibold"></p>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ลงวันที่ <span class="text-amber-500">*</span></label>
+                <input type="date" id="field-col2" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none" required>
+              </div>
+            </div>
           </div>
-          <div class="flex items-end">
-            <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold py-3 px-4 rounded-xl shadow-sm flex items-center justify-center space-x-2 border border-slate-850"><span>🔍 ค้นหารายการ</span></button>
+
+          <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 relative overflow-hidden">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div class="md:col-span-2">
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ชื่อสัญญา <span class="text-amber-500">*</span></label>
+                <input type="text" id="field-col4" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none" required>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">จำนวนเงิน (บาท) <span class="text-amber-500">*</span></label>
+                <input type="number" step="0.01" id="field-col5" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm font-bold focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none" required>
+              </div>
+              <div class="md:col-span-2">
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">คู่สัญญา <span class="text-amber-500">*</span></label>
+                <input type="text" id="field-col6" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none" required>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">รหัสงบประมาณ</label>
+                <input type="text" id="field-col7" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none">
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 relative overflow-hidden">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">จำนวนงวด</label>
+                <input type="number" id="field-col8" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">วันเริ่มต้นสัญญา</label>
+                <input type="date" id="field-col9" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">วันสิ้นสุดสัญญา</label>
+                <input type="date" id="field-col10" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white focus:ring-2 focus:ring-amber-400 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">จำนวนงบประมาณ</label>
+                <input type="number" step="0.01" id="field-col13" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ราคากลาง</label>
+                <input type="number" step="0.01" id="field-col14" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">วิธีจัดหา</label>
+                <select id="field-col11" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 text-sm rounded-xl p-3 focus:bg-white cursor-pointer">
+                  <option value=""></option>
+                  <option value="วิธีเฉพาะเจาะจง">วิธีเฉพาะเจาะจง</option>
+                  <option value="วิธีคัดเลือก">วิธีคัดเลือก</option>
+                  <option value="วิธีประกวดราคาอิเล็กทรอนิกส์ (e-bidding)">วิธีประกวดราคาอิเล็กทรอนิกส์ (e-bidding)</option>
+                  <option value="วิธีตกลงราคา">วิธีตกลงราคา</option>
+                  <option value="วิธีสอบราคา">วิธีสอบราคา</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 relative overflow-hidden">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ใบขอจัดหา /บันทึก</label>
+                <input type="text" id="field-col12" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">รายงานขอซื้อขอจ้าง</label>
+                <input type="text" id="field-col15" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ประกาศร่าง TOR</label>
+                <input type="text" id="field-col16" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">รายงานปรับปรุงร่าง TOR</label>
+                <input type="text" id="field-col17" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">เลขที่ประกาศ/หนังสือเชิญ</label>
+                <input type="text" id="field-col18" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">จำนวนผู้เสนอราคา</label>
+                <input type="number" id="field-col19" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">วันที่ประกาศผล/ยกเลิก</label>
+                <input type="text" id="field-col20" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">คำสั่ง คกก.ตรวจรับ</label>
+                <input type="text" id="field-col21" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200/80 relative overflow-hidden">
+            <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">หลักประกัน</label>
+                <input type="text" id="field-col22" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">การจัดเก็บเอกสาร</label>
+                <input type="text" id="field-col23" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">รับประกันความชำรุด</label>
+                <input type="text" id="field-col24" class="w-full bg-slate-50/80 border border-slate-200 text-slate-800 rounded-xl p-3 text-sm focus:bg-white">
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-md border border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <p class="text-xs text-slate-400 font-medium">หมายเหตุ: ฟิลด์ข้อมูลที่มีเครื่องหมายดอกจัน <span class="text-amber-400 font-bold">*</span> จำเป็นต้องกรอกข้อมูลให้ครบถ้วน</p>
+            <div class="flex items-center space-x-3 self-end md:self-auto">
+              <button type="button" onclick="clearForm()" class="px-5 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold rounded-xl border border-slate-700">🧹 ล้างแบบฟอร์ม</button>
+              <button type="submit" id="btn-submit-form" class="px-8 py-3 bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 text-xs font-bold rounded-xl hover:brightness-105 transition-all flex items-center shadow-lg shadow-amber-500/10">
+                <span id="submit-text">💾 บันทึกข้อมูลสัญญา</span>
+                <div id="submit-spinner" class="hidden animate-spin rounded-full h-4 w-4 border-b-2 border-slate-950 ml-2"></div>
+              </button>
+            </div>
           </div>
         </form>
-      </div>
+      </section>
 
-      <div id="search-loader" class="hidden flex items-center justify-center p-12">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-400"></div>
-        <span class="ml-3 font-medium text-slate-500 text-sm">กำลังค้นหาข้อมูลจากเซิร์ฟเวอร์คลาวด์...</span>
-      </div>
-
-      <div id="search-results-area" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="bg-slate-50 px-6 py-4 border-b border-slate-200/60 flex justify-between items-center flex-wrap gap-2">
-          <span id="results-count" class="text-xs font-bold text-slate-500">ค้นพบรายการผลลัพธ์: 0 สัญญา</span>
-          <span class="text-[10px] text-slate-400 font-semibold">* แสดงข้อมูลแยกตามปีงบประมาณและจัดเรียงเลขที่สัญญาจากน้อยไปมาก</span>
+      <section id="view-check" class="hidden space-y-6">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <h2 class="text-xl font-bold text-slate-900 mb-1">ตรวจสอบและค้นหาข้อมูลทะเบียนสัญญา</h2>
+          <p class="text-xs text-slate-500 mb-6">กรองข้อมูลด้วยปีงบประมาณ และค้นหาจากเลขที่สัญญา ชื่อสัญญา หรือคู่สัญญา</p>
+          
+          <form onsubmit="handleSearch(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">ระบุปีงบประมาณ :</label>
+              <select id="search-year" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-amber-400 p-3 font-semibold cursor-pointer"></select>
+            </div>
+            <div class="md:col-span-2">
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">คำค้นหาหลัก (Keyword) :</label>
+              <input type="text" id="search-keyword" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-amber-400 p-3 focus:outline-none" placeholder="พิมพ์ชื่อคู่สัญญา, เลขที่สัญญา หรือชื่อสัญญา...">
+            </div>
+            <div class="flex items-end">
+              <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold py-3 px-4 rounded-xl shadow-sm flex items-center justify-center space-x-2 border border-slate-850"><span>🔍 ค้นหารายการ</span></button>
+            </div>
+          </form>
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-slate-100 text-left">
-            <thead class="bg-slate-900 text-white">
-              <tr>
-                <th class="px-6 py-3.5 text-xs font-bold uppercase">ประเภท</th>
-                <th class="px-6 py-3.5 text-xs font-bold uppercase">ลงวันที่</th>
-                <th class="px-6 py-3.5 text-xs font-bold uppercase">เลขที่สัญญา</th>
-                <th class="px-6 py-3.5 text-xs font-bold uppercase">ชื่อสัญญา</th>
-                <th class="px-6 py-3.5 text-xs font-bold uppercase">จำนวนเงิน (บาท)</th>
-                <th class="px-6 py-3.5 text-xs font-bold uppercase">คู่สัญญา</th>
-                <th class="px-6 py-3.5 text-xs font-bold uppercase text-center">จัดการ</th>
-              </tr>
-            </thead>
-            <tbody id="results-table-body" class="bg-white divide-y divide-slate-100">
-              <tr><td colspan="7" class="px-6 py-12 text-center text-slate-400 font-medium text-xs">กรุณากดค้นหาข้อมูลเพื่อแสดงผลลัพธ์ในตารางนี้</td></tr>
-            </tbody>
-          </table>
+        <div id="search-loader" class="hidden flex items-center justify-center p-12">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-400"></div>
+          <span class="ml-3 font-medium text-slate-500 text-sm">กำลังค้นหาข้อมูลจากเซิร์ฟเวอร์คลาวด์...</span>
         </div>
-      </div>
-    </section>
-  </main>
 
-  <footer class="bg-slate-900 border-t border-slate-800 py-6 mt-12">
-    <div class="max-w-7xl mx-auto px-4 text-center">
-      <p class="text-[10px] text-slate-500 font-medium">© 2026 ระบบคีย์ทะเบียนสัญญาหน่วยงานรัฐบาลไทย (Production Edition).</p>
-      <p class="text-[9px] text-slate-600 mt-1">พัฒนาด้วย Google Apps Script + Google Sheets API + GitHub Pages</p>
-    </div>
-  </footer>
+        <div id="search-results-area" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="bg-slate-50 px-6 py-4 border-b border-slate-200/60 flex justify-between items-center flex-wrap gap-2">
+            <span id="results-count" class="text-xs font-bold text-slate-500">ค้นพบรายการผลลัพธ์: 0 สัญญา</span>
+            <span class="text-[10px] text-slate-400 font-semibold">* แสดงข้อมูลแยกตามปีงบประมาณและจัดเรียงเลขที่สัญญาจากน้อยไปมาก</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-100 text-left">
+              <thead class="bg-slate-900 text-white">
+                <tr>
+                  <th class="px-6 py-3.5 text-xs font-bold uppercase">ประเภท</th>
+                  <th class="px-6 py-3.5 text-xs font-bold uppercase">ลงวันที่</th>
+                  <th class="px-6 py-3.5 text-xs font-bold uppercase">เลขที่สัญญา</th>
+                  <th class="px-6 py-3.5 text-xs font-bold uppercase">ชื่อสัญญา</th>
+                  <th class="px-6 py-3.5 text-xs font-bold uppercase">จำนวนเงิน (บาท)</th>
+                  <th class="px-6 py-3.5 text-xs font-bold uppercase">คู่สัญญา</th>
+                  <th class="px-6 py-3.5 text-xs font-bold uppercase text-center">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="results-table-body" class="bg-white divide-y divide-slate-100">
+                <tr><td colspan="7" class="px-6 py-12 text-center text-slate-400 font-medium text-xs">กรุณากดค้นหาข้อมูลเพื่อแสดงผลลัพธ์ในตารางนี้</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-slate-900 border-t border-slate-800 py-6 mt-12">
+      <div class="max-w-7xl mx-auto px-4 text-center">
+        <p class="text-[10px] text-slate-500 font-medium">© 2026 ระบบคีย์ทะเบียนสัญญาหน่วยงานรัฐบาลไทย (Production Edition).</p>
+        <p class="text-[9px] text-slate-600 mt-1">พัฒนาด้วย Google Apps Script + Google Sheets API + GitHub Pages</p>
+      </div>
+    </footer>
+  </div>
 
   <script>
     // =========================================================================
@@ -349,6 +383,7 @@
     window.onload = function() {
       setupYearSelectors();
       initCloudLinks();
+      checkSessionLogin(); // เช็คสถานะการเข้าสู่ระบบเก่าค้างไว้
     };
 
     function getThaiFiscalYear() {
@@ -358,12 +393,12 @@
     }
 
     function setupYearSelectors() {
-      const selectors = ["db-year-select", "field-year", "search-year"].map(id => document.getElementById(id));
+      const selectors = ["db-year-select", "field-year", "search-year", "login-year-select"].map(id => document.getElementById(id));
       selectors.forEach(select => {
         select.innerHTML = "";
         for (let y = END_YEAR; y >= START_YEAR; y--) {
           const opt = new Option("ปีงบประมาณ " + y, y);
-          if (y === CURRENT_BUDGET_YEAR) opt.selected = true;
+          if (y === CURRENT_BUADGET_YEAR || y === CURRENT_BUDGET_YEAR) opt.selected = true;
           select.add(opt);
         }
       });
@@ -372,45 +407,92 @@
     function initCloudLinks() {
       document.getElementById('header-drive-link').href = GOOGLE_DRIVE_URL;
       document.getElementById('dash-drive-btn').href = GOOGLE_DRIVE_URL;
-      checkCloudConnection();
     }
 
-    function checkCloudConnection() {
-      const badge = document.getElementById('db-status-badge');
-      badge.innerText = "⏳ กำลังตรวจสอบสิทธิ์เชื่อมต่อคลาวด์...";
-      badge.className = "px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold text-[10px]";
+    // =========================================================================
+    // 🔒 ระบบล็อกอินฝั่งรับส่งข้อมูล (JavaScript Login Logic)
+    // =========================================================================
+    function handleLoginSubmit(event) {
+      event.preventDefault();
+      const year = document.getElementById("login-year-select").value;
+      const uName = document.getElementById("login-username").value.trim();
+      const pWord = document.getElementById("login-password").value.trim();
+      
+      const btn = document.getElementById("btn-login");
+      const text = document.getElementById("login-btn-text");
+      const spinner = document.getElementById("login-spinner");
+      const errBox = document.getElementById("login-error-msg");
 
+      btn.disabled = true; spinner.classList.remove("hidden"); text.innerText = "กำลังตรวจสอบบัญชี...";
+      errBox.classList.add("hidden");
+
+      // ส่ง Request ไปตรวจสอบชื่อผู้ใช้และรหัสผ่านที่หลังบ้าน Google Sheets
       fetch(WEB_APP_URL, {
         method: "POST",
         mode: "cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "getDashboardStats", year: CURRENT_BUDGET_YEAR.toString() })
+        body: JSON.stringify({ action: "userLogin", year: year, username: uName, password: pWord })
       })
       .then(res => res.json())
       .then(data => {
+        btn.disabled = false; spinner.classList.add("hidden"); text.innerText = "🔒 ตรวจสอบสิทธิ์เข้าใช้งาน";
+        
         if (data && data.success) {
-          isCloudConnected = true;
-          badge.innerText = "🟢 เชื่อมต่อ Google Sheets บน Cloud สำเร็จ (Online)";
-          badge.className = "px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]";
-          loadDashboardStats();
+          // เก็บสถานะลง Session ของเบราว์เซอร์ เพื่อไม่ให้ต้องกดล็อกอินซ้ำเวลาเปลี่ยนแท็บหรือรีเฟรชหน้าสั้นๆ
+          sessionStorage.setItem("isLoggedIn", "true");
+          sessionStorage.setItem("selectedYear", year);
+          
+          // เปลี่ยนปีงบประมาณในแดชบอร์ดให้ตรงกับที่ Login เข้ามา
+          document.getElementById("db-year-select").value = year;
+          
+          // ปลดล็อกเปิดหน้าโปรแกรมหลัก
+          unlockAppDashboard();
         } else {
-          badge.innerText = "❌ ปลายทางปฏิเสธสิทธิ์การเข้าถึง (เช็คการ Deploy Apps Script)";
-          badge.className = "px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold text-[10px]";
+          errBox.innerText = "❌ " + (data.message || "การเชื่อมต่อปฏิเสธ รหัสผ่านไม่ถูกต้อง");
+          errBox.classList.remove("hidden");
         }
       })
       .catch(err => {
-        badge.innerText = "⚠️ ไม่สามารถเชื่อมต่อ API ได้ (โหมดออฟไลน์เพื่อความปลอดภัย)";
-        badge.className = "px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-800 font-bold text-[10px]";
+        btn.disabled = false; spinner.classList.add("hidden"); text.innerText = "🔒 ตรวจสอบสิทธิ์เข้าใช้งาน";
+        errBox.innerText = "⚠️ ไม่สามารถเชื่อมต่อฐานข้อมูลได้: " + err.message;
+        errBox.classList.remove("hidden");
       });
     }
 
-    function callAPI(action, payload, successCb, failCb) {
-      if (!isCloudConnected) {
-        showToast("ระบบออฟไลน์อยู่ ไม่สามารถทำรายการได้", "danger");
-        if (failCb) failCb(new Error("Offline"));
-        return;
+    function checkSessionLogin() {
+      if (sessionStorage.getItem("isLoggedIn") === "true") {
+        const savedYear = sessionStorage.getItem("selectedYear");
+        if(savedYear) document.getElementById("db-year-select").value = savedYear;
+        unlockAppDashboard();
       }
+    }
+
+    function unlockAppDashboard() {
+      document.getElementById("login-overlay").classList.add("hidden");
+      document.getElementById("main-app-content").classList.remove("hidden");
+      isCloudConnected = true;
       
+      const badge = document.getElementById('db-status-badge');
+      badge.innerText = "🟢 ได้รับสิทธิ์เข้าถึงฐานข้อมูลสำเร็จ (Online)";
+      badge.className = "px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]";
+      
+      loadDashboardStats();
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem("isLoggedIn");
+      sessionStorage.removeItem("selectedYear");
+      window.location.reload();
+    }
+
+    // -------------------------------------------------------------------------
+    // ฟังก์ชันยิง API เดิม (คงไว้ใช้งานต่อตามปกติ)
+    // -------------------------------------------------------------------------
+    function checkCloudConnection() {
+      loadDashboardStats();
+    }
+
+    function callAPI(action, payload, successCb, failCb) {
       const requestBody = {
         action: action,
         year: payload[0] || "",
@@ -446,7 +528,7 @@
       document.getElementById("view-" + tabId).classList.remove("hidden");
       document.getElementById("nav-" + tabId).className = "px-3.5 py-2 rounded-xl text-sm font-medium transition-all bg-slate-800 text-amber-400 shadow-sm border-b border-amber-400";
 
-      if (tabId === 'dashboard' && isCloudConnected) loadDashboardStats();
+      if (tabId === 'dashboard') loadDashboardStats();
     }
 
     function loadDashboardStats() {
@@ -585,7 +667,6 @@
         loader.classList.add("hidden"); resultsArea.classList.remove("opacity-40");
         if (res && res.success) {
           const results = res.results;
-          // 🛠️ ปรับปรุงแก้ไข: ข้อความแสดงผลจำนวนสัญญากับการเรียงลำดับให้กลายเป็น น้อยไปมาก
           document.getElementById("results-count").innerText = "ค้นพบรายการผลลัพธ์: " + results.length + " สัญญา (เรียงลำดับจากเลขที่น้อยไปมาก)";
           
           if (results.length === 0) {
@@ -693,7 +774,6 @@
       validatedNoState = { isValid: true, checkingNo: "" };
     }
 
-    // 🛠️ ปรับปรุงเสร็จสิ้น -----------------
     function formatNumber(num) {
       if (!num) return "0.00";
       const val = parseFloat(num);
